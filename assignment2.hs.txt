@@ -1,10 +1,17 @@
-reverseList :: [Int] -> [Int]
-reverseList [] = []
-reverseList (x:xs) = reverseList xs ++ [x]
+safeDiv :: Int -> Int -> Maybe Double
+safeDiv _ 0 = Nothing  -- Division by zero
+safeDiv x y = Just (fromIntegral x / fromIntegral y)
+
+-- Function to perform safe division at a given index in the list
+safeDivision2 :: Int -> [(Int, Int)] -> Maybe Double
+safeDivision2 index tuples
+    | index < 0 || index >= length tuples = Nothing  -- Index out of bounds
+    | otherwise = case tuples !! index of
+                    (x, y) -> safeDiv x y
+
 main :: IO ()
 main = do
-    let myList = [10 , 15 , 20]
-    putStrLn "Original list:"
-    print myList
-    putStrLn "Reversed list:"
-    print $ reverseList myList
+    let tuples = [(10, 2), (5, 0), (8, 4)]
+        index = 1
+        result = safeDivision2 index tuples
+    putStrLn $ "Division result at index " ++ show index ++ ": " ++ show result

@@ -1,10 +1,20 @@
-isPalindrome :: String -> Bool
-isPalindrome str = str == reverse str
+class Slicable a where
+    slice :: a -> Int -> Int -> Maybe a
+
+instance Slicable String where
+    slice str start end
+        | start < 0 || end < start || end > length str = Nothing
+        | otherwise = Just $ take (end - start) (drop start str)
+
+sliceMyString :: String -> Int -> Int -> Maybe String
+sliceMyString value start end = slice value start end
+
+-- Testing the sliceMyString function
 main :: IO ()
 main = do
-    putStrLn "Enter a string:"
-    input <- getLine
-    let result = isPalindrome input
-    if result
-        then putStrLn "The input string is a palindrome."
-        else putStrLn "The input string is not a palindrome."
+    let inputString = "Hello, World!"
+    
+    putStrLn $ show $ sliceMyString inputString 0 5  
+    putStrLn $ show $ sliceMyString inputString 7 12 
+    putStrLn $ show $ sliceMyString inputString 5 0  
+    putStrLn $ show $ sliceMyString inputString 0 15
