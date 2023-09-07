@@ -1,12 +1,17 @@
-data Shape = Circle Double   -- Circle constructor with radius
-           | Rectangle Double Double  -- Rectangle constructor with width and height
+import Control.Applicative (liftA2)
 
-instance Show Shape where
-    show (Circle radius) = "Circle with radius " ++ show radius
-    show (Rectangle width height) = "Rectangle with width " ++ show width ++ " and height " ++ show height
+incrementList :: Functor f => f Int -> f Int
+incrementList = fmap (+1)
+
+
+sumLists :: Applicative f => f Int -> f Int -> f Int
+sumLists = liftA2 (+)
+
 main :: IO ()
 main = do
-    let circle = Circle 5.0
-        rectangle = Rectangle 4.0 6.0
-    putStrLn $ show circle
-    putStrLn $ show rectangle
+    let intList = [1, 2, 3, 4, 5]
+        intList2 = [10, 20, 30, 40, 50]
+        incremented = incrementList intList
+        summed = sumLists intList intList2
+    print incremented
+    print summed

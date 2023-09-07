@@ -1,20 +1,25 @@
-class Slicable a where
-    slice :: a -> Int -> Int -> Maybe a
+import Control.Exception (try, SomeException)
+import System.IO
 
-instance Slicable String where
-    slice str start end
-        | start < 0 || end < start || end > length str = Nothing
-        | otherwise = Just $ take (end - start) (drop start str)
-
-sliceMyString :: String -> Int -> Int -> Maybe String
-sliceMyString value start end = slice value start end
-
--- Testing the sliceMyString function
 main :: IO ()
 main = do
-    let inputString = "Hello, World!"
-    
-    putStrLn $ show $ sliceMyString inputString 0 5  
-    putStrLn $ show $ sliceMyString inputString 7 12 
-    putStrLn $ show $ sliceMyString inputString 5 0  
-    putStrLn $ show $ sliceMyString inputString 0 15
+    result <- try readAndSumNumbers :: IO (Either SomeException Double)
+    case result of
+        Left ex -> putStrLn $ "An error occurred: " ++ show ex
+        Right totalSum -> do
+            writeFile "sum.txt" (show totalSum ++ "\n")
+            putStrLn "Sum written to 'sum.txt'."
+
+readAndSumNumbers :: IO Double
+readAndSumNumbers = do
+    content <- readFile "numbers.txt"
+    let numbers = map readNumber (lines content)
+    case sequence numbers of
+        Left _ -> error "Non-numeric input found."
+        Right nums -> return $ sum nums
+
+readNumber :: String -> Either String Double
+readNumber str =
+    case reads str of
+        [(num, "")] -> Right num
+        _ -> Left $ "Non-numeric input found: " ++ str

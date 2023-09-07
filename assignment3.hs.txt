@@ -1,17 +1,26 @@
-data Vehicle = Car String Int | Bike String Int deriving Show
-
-findVehicle :: Int -> [Vehicle] -> Maybe (String, Int)
-findVehicle index vehicles
-    | index < 0 || index >= length vehicles = Nothing  -- Index out of bounds
-    | otherwise = case vehicles !! index of
-                    Car make year -> Just (make, year)
-                    Bike make year -> Just (make, year)
+import Control.Exception (catch, SomeException)
+import System.IO (readFile)
 
 main :: IO ()
 main = do
-    let vehicles = [Car "Toyota" 2010, Bike "Honda" 2022, Car "Ford" 2015]
-        index = 1
-        result = findVehicle index vehicles
+    result <- readAndSumNumbers "numbers.txt"
     case result of
-        Just (make, year) -> putStrLn $ "Vehicle at index " ++ show index ++ ": Make = " ++ make ++ ", Year = " ++ show year
-        Nothing -> putStrLn $ "Index " ++ show index ++ " is out of bounds."
+        Left err -> putStrLn err
+        Right totalSum -> putStrLn $ "Sum of the numbers: " ++ show totalSum
+
+readAndSumNumbers :: FilePath -> IO (Either String Double)
+readAndSumNumbers filename = do
+    content <- catch (readFile filename) handleReadError
+    let numbers = map readNumber (lines content)
+    case sequence numbers of
+        Left err -> return $ Left err
+        Right nums -> return $ Right (sum nums)
+
+readNumber :: String -> Either String Double
+readNumber str =
+    case reads str of
+        [(num, "")] -> Right num
+        _ -> Left $ "Non-numeric input found: " ++ str
+
+handleReadError :: SomeException -> IO String
+handleReadError _ = return "The file 'numbers.txt' was not found."
